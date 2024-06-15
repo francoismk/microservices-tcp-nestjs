@@ -7,7 +7,10 @@ import { createUserEvent } from './create-user.event';
 export class AppService {
   private readonly users: any[] = []
 
-  constructor(@Inject('COMMUNICATION') private readonly communicationClient: ClientProxy) {}
+  constructor(
+    @Inject('COMMUNICATION') private readonly communicationClient: ClientProxy,
+    @Inject('ANALYTICS') private readonly analyticsClient: ClientProxy,
+  ) {}
 
   getHello(): string {
     return 'Hello World!';
@@ -16,5 +19,11 @@ export class AppService {
   createUser(createUserRequest: CreateUserRequest) {
     this.users.push(createUserRequest)
     this.communicationClient.emit('user_created', new createUserEvent(createUserRequest.email))
+    this.analyticsClient.emit('user_created', new createUserEvent(createUserRequest.email))
+
+  }
+
+  getAnalytics() {
+    return this.analyticsClient.send({ cmd: 'get_analytics' }, {})
   }
 }
